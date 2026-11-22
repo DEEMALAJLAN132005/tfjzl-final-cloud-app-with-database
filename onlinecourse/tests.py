@@ -22,13 +22,13 @@ class AssessmentTests(TestCase):
         )
         cls.enrollment = Enrollment.objects.create(user=cls.user, course=cls.course)
         cls.question = Question.objects.create(
-            course=cls.course, content="Is Django a Python framework?", grade=100
+            course=cls.course, question_text="Is Django a Python framework?", grade=100
         )
         cls.correct = Choice.objects.create(
-            question=cls.question, content="Yes", is_correct=True
+            question=cls.question, choice_text="Yes", is_correct=True
         )
         cls.incorrect = Choice.objects.create(
-            question=cls.question, content="No", is_correct=False
+            question=cls.question, choice_text="No", is_correct=False
         )
 
     def setUp(self):
@@ -86,7 +86,7 @@ class AssessmentTests(TestCase):
         self.client.force_login(other)
         response = self.client.get(
             reverse(
-                "onlinecourse:exam_result",
+                "onlinecourse:show_exam_result",
                 args=(self.course.pk, submission.pk),
             )
         )
