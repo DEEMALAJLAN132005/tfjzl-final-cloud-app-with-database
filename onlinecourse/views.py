@@ -119,7 +119,7 @@ def submit(request, course_id):
     submission = Submission.objects.create(enrollment=enrollment)
     submission.choices.set(valid_choices)
     return HttpResponseRedirect(
-        reverse('onlinecourse:exam_result', args=(course.id, submission.id))
+        reverse('onlinecourse:show_exam_result', args=(course.id, submission.id))
     )
 
 
