@@ -1,0 +1,48 @@
+name: Verify Django Online Course Assessment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Django and screenshot dependencies
+        run: |
+          python -m pip install --disable-pip-version-check "Django>=4.2,<4.3" "Pillow>=10,<11" playwright
+          python -m playwright install --with-deps chromium
+      - name: Create and apply database migrations
+        run: |
+          python manage.py makemigrations onlinecourse --noinput
+          python manage.py migrate --noinput
+          python manage.py check
+      - name: Run automated Django tests
+        run: python manage.py test onlinecourse -v 2
+      - name: Set up mock course and exam
+        run: python scripts/seed_assessment.py
+      - name: Capture real admin and exam screenshots
+        run: |
+          python manage.py runserver 127.0.0.1:8000 > /tmp/onlinecourse-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/onlinecourse/ >/dev/null; then break; fi
+            sleep 1
+          done
+          python scripts/capture_assessment.py
+      - name: Upload screenshots for final assessment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onlinecourse-assessment-evidence
+          path: evidence/
+          if-no-files-found: warn
