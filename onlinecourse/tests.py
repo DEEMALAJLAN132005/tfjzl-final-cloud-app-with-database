@@ -1,6 +1,7 @@
 """Integration tests for the final Django online-course assessment feature."""
 from datetime import date
 
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -33,6 +34,26 @@ class AssessmentTests(TestCase):
 
     def setUp(self):
         self.client.force_login(self.user)
+
+    def test_grading_rubric_model_fields_and_admin(self):
+        """Verify the precise names required by the AI grading rubric."""
+        self.assertEqual(
+            Question._meta.get_field("question_text").name, "question_text"
+        )
+        self.assertEqual(
+            Choice._meta.get_field("choice_text").name, "choice_text"
+        )
+        self.assertIn("question_text", admin.site._registry[Question].list_display)
+        submission = Submission.objects.create(enrollment=self.enrollment)
+        self.assertIn("Submission", str(submission))
+
+    def test_grading_rubric_result_route_name(self):
+        submission = Submission.objects.create(enrollment=self.enrollment)
+        result_url = reverse(
+            "onlinecourse:show_exam_result",
+            args=(self.course.pk, submission.pk),
+        )
+        self.assertIn("/result/", result_url)
 
     def test_question_requires_exact_correct_choice_set(self):
         self.assertTrue(self.question.is_get_score([self.correct.pk]))
