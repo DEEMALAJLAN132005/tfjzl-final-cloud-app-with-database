@@ -26,9 +26,9 @@ with sync_playwright() as playwright:
 
     # Login through the course site's actual login form and complete the exam.
     page.goto(f"{base}/onlinecourse/login/", wait_until="domcontentloaded")
-    page.locator("input[name='username']").fill(demo["username"])
-    page.locator("input[name='psw']").fill(demo["password"])
-    page.locator("button[type='submit'], input[type='submit']").first.click()
+    page.locator("#username").fill(demo["username"])
+    page.locator("#psw").fill(demo["password"])
+    page.locator("form").last.locator("button[type='submit']").click()
     page.goto(f"{base}/onlinecourse/{demo['course_id']}/", wait_until="domcontentloaded")
     page.get_by_role("button", name="Start Exam").click()
     page.locator(f"input[name='choice_{demo['correct_choice_id']}']").check(force=True)
