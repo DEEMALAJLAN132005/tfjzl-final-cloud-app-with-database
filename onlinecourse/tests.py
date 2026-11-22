@@ -98,7 +98,7 @@ class AssessmentTests(TestCase):
         )
         self.client.force_login(other)
         response = self.client.post(
-            reverse("onlinecourse:submit", args=(self.course.pk)),
+            reverse("onlinecourse:submit", args=(self.course.pk,)),
             {f"choice_{self.correct.pk}": str(self.correct.pk)},
         )
         self.assertEqual(response.status_code, 404)
