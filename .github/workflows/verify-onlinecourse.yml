@@ -11,6 +11,8 @@ permissions:
 jobs:
   test-and-capture:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
