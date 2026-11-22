@@ -48,14 +48,14 @@ Lesson.objects.get_or_create(
 )
 Enrollment.objects.get_or_create(user=user, course=course)
 question, _ = Question.objects.get_or_create(
-    course=course, content="Is Django a Python framework?",
+    course=course, question_text="Is Django a Python framework?",
     defaults={"grade": 100},
 )
 correct, _ = Choice.objects.get_or_create(
-    question=question, content="Yes", defaults={"is_correct": True},
+    question=question, choice_text="Yes", defaults={"is_correct": True},
 )
 Choice.objects.get_or_create(
-    question=question, content="No", defaults={"is_correct": False},
+    question=question, choice_text="No", defaults={"is_correct": False},
 )
 credentials_path = "/tmp/onlinecourse-demo-credentials.json"
 with open(credentials_path, "w", encoding="utf-8") as file:
