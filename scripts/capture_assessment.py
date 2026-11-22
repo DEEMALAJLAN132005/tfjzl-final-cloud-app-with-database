@@ -1,3 +1,4 @@
+
 """Capture real Django browser screenshots for the final project evidence."""
 import json
 from pathlib import Path
@@ -12,7 +13,10 @@ base = "http://127.0.0.1:8000"
 
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch(headless=True)
-    page = browser.new_page(viewport={"width": 1440, "height": 1000}, device_scale_factor=1)
+    page = browser.new_page(
+        viewport={"width": 1440, "height": 1000},
+        device_scale_factor=1
+    )
 
     # Actual Django admin home with Authentication and OnlineCourse sections.
     page.goto(f"{base}/admin/", wait_until="domcontentloaded")
@@ -29,12 +33,28 @@ with sync_playwright() as playwright:
     page.locator("#username").fill(demo["username"])
     page.locator("#psw").fill(demo["password"])
     page.locator("form").last.locator("button[type='submit']").click()
-    page.goto(f"{base}/onlinecourse/{demo['course_id']}/", wait_until="domcontentloaded")
+
+    page.goto(
+        f"{base}/onlinecourse/{demo['course_id']}/",
+        wait_until="domcontentloaded"
+    )
+
     page.get_by_role("button", name="Start Exam").click()
-    page.locator(f"input[name='choice_{demo['correct_choice_id']}']").check(force=True)
+
+    # Wait for the exam section to become visible before selecting an answer.
+    page.locator("#exam").wait_for(state="visible")
+
+    # Select the correct answer without forcing the click.
+    page.locator(
+        f"input[name='choice_{demo['correct_choice_id']}']"
+    ).check()
+
     page.locator("input[type='submit'][value='Submit']").click()
+
     page.get_by_text("Congratulations", exact=False).wait_for()
     page.get_by_text("100/100", exact=False).wait_for()
     page.screenshot(path="evidence/07-final.png", full_page=True)
+
     browser.close()
+
 print("Saved evidence/03-admin-site.png and evidence/07-final.png")
