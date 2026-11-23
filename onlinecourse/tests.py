@@ -80,6 +80,7 @@ class AssessmentTests(TestCase):
         self.assertContains(response, "Congratulations")
         self.assertContains(response, "100/100")
         self.assertContains(response, "Correct answer: Yes")
+        self.assertEqual(response.context["selected_ids"], [self.correct.pk])
         self.assertEqual(Submission.objects.count(), 1)
 
     def test_incorrect_answers_show_fail(self):
