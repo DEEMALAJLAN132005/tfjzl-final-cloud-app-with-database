@@ -141,15 +141,21 @@ def show_exam_result(request, course_id, submission_id):
         enrollment__course=course, enrollment__user=request.user
     )
     choices = submission.choices.all()
+    selected_ids = list(choices.values_list('id', flat=True))
     total_score = 0
     for question in course.question_set.all():
-        selected_ids = list(
+        question_selected_ids = list(
             choices.filter(question=question).values_list('id', flat=True)
         )
-        if question.is_get_score(selected_ids):
+        if question.is_get_score(question_selected_ids):
             total_score += question.grade
 
     return render(
         request, 'onlinecourse/exam_result_bootstrap.html',
-        {'course': course, 'grade': total_score, 'choices': choices}
+        {
+            'course': course,
+            'grade': total_score,
+            'choices': choices,
+            'selected_ids': selected_ids,
+        }
     )
